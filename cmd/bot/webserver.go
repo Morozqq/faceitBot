@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"sync"
@@ -17,12 +16,13 @@ func runServer(wg *sync.WaitGroup) {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8080" //
 	}
 
 	http.HandleFunc("/", homeHandler)
-	log.Printf("Starting server on :%s\n", port)
+	fmt.Printf("Starting server on port %s\n", port)
+
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatalf("Error starting server: %v", err)
+		fmt.Println("Error starting server:", err)
 	}
 }

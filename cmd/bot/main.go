@@ -22,17 +22,16 @@ func main() {
 
 	dg.AddHandler(messageCreate)
 
-	// Open the websocket connection to Discord and begin listening
 	if err := dg.Open(); err != nil {
 		log.Fatalf("Error opening connection: %v", err)
 	}
 
 	var wg sync.WaitGroup
 	wg.Add(1)
+
 	go runServer(&wg)
 
 	log.Println("Bot is now running. Press CTRL+C to exit.")
-
 	select {}
 	wg.Wait()
 }
