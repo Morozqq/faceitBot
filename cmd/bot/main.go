@@ -4,6 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 	"log"
+	"sync"
 )
 
 func main() {
@@ -35,6 +36,11 @@ func main() {
 		log.Fatalf("Error opening connection: %v", err)
 	}
 
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go runServer(&wg)
+
 	log.Println("Bot is now running. Press CTRL+C to exit.")
 	select {} // Block until CTRL+C is pressed
+	wg.Wait()
 }
