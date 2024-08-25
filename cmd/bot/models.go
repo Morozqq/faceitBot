@@ -16,5 +16,12 @@ type MatchStats struct {
 	Adr                 string `json:"ADR"`
 	KdRatio             string `json:"K/D Ratio"`
 	KrRatio             string `json:"K/R Ratio"`
-	Nickname            string `json:"nickname"`
+}
+
+type Profile struct {
+	PlayerID  string `json:"player_id"`
+	Nickname  string `json:"nickname"`
+	Avatar    string `json:"avatar"`
+	Country   string `json:"country"`
+	FaceitURL string `json:"faceit_url"`
 }

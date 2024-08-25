@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
-func FindNickName(nickname string) (string, error) {
+func FindNickName(nickname string) (string, Profile, error) {
 	client := http.Client{}
 
 	req, err := http.NewRequest("GET", NameUrl+nickname, nil)
 	if err != nil {
-		return "", err
+		fmt.Println("Error creating request")
+		return "", Profile{}, err
 	}
 
 	req.Header = http.Header{
@@ -22,30 +24,35 @@ func FindNickName(nickname string) (string, error) {
 
 	res, err := client.Do(req)
 	if err != nil {
-		return "", err
+		fmt.Println("Error executing name request")
+		return "", Profile{}, err
 	}
+
 	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return "", err
+	body, ioError := io.ReadAll(res.Body)
+	if ioError != nil {
+		fmt.Println("Error reading response body")
+		return "", Profile{}, ioError
 	}
 
-	if res.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("Player not found. Status code: %d", res.StatusCode)
+	if res.StatusCode != 200 {
+		return "", Profile{}, fmt.Errorf("Player not found. Status code: %d", res.StatusCode)
 	}
 
-	var player map[string]interface{}
-	if err := json.Unmarshal(body, &player); err != nil {
-		return "", fmt.Errorf("Error unmarshalling player data: %s", err)
+	var profile Profile
+	jsonError := json.Unmarshal(body, &profile)
+	if jsonError != nil {
+		return "", Profile{}, fmt.Errorf("Error unmarshalling player data: %s", jsonError)
 	}
+	profile.FaceitURL = strings.Replace(profile.FaceitURL, "{lang}", "en", 1)
 
 	// Check if the "player_id" field exists
-	if playerID, ok := player["player_id"].(string); ok {
-		return playerID, nil
+	if profile.PlayerID != "" {
+		return profile.PlayerID, profile, nil
 	}
 
-	return "", fmt.Errorf("Player not found.")
+	return "", Profile{}, fmt.Errorf("Player not found.")
 }
 
 func FetchPlayerStats(playerID string) (MatchData, error) {

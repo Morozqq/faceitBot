@@ -26,7 +26,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		nickname := args[1]
 
 		// Find player ID by nickname
-		playerID, err := FindNickName(nickname)
+		playerID, profile, err := FindNickName(nickname)
 		if err != nil {
 			_, err := s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error finding player: %v", err))
 			if err != nil {
@@ -75,10 +75,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				{Name: "📈 Average ADR", Value: StatsAverage(matchData.Items, "Adr"), Inline: true},
 				{Name: "📉 Average K/D Ratio", Value: StatsAverage(matchData.Items, "KdRatio"), Inline: true},
 				{Name: "⚖️ Average K/R Ratio", Value: StatsAverage(matchData.Items, "KrRatio"), Inline: true},
+				{Name: "Country", Value: profile.Country, Inline: true},
+				{Name: "Profile Link", Value: fmt.Sprintf("[Click here to view profile](%s)", profile.FaceitURL), Inline: false},
 			},
 
 			Image: &discordgo.MessageEmbedImage{
-				URL: "https://i.redd.it/skjbnwt8529b1.jpg", // Replace with the actual URL of the image
+				URL: profile.Avatar, // Replace with the actual URL of the image
 			},
 
 			Footer: &discordgo.MessageEmbedFooter{
